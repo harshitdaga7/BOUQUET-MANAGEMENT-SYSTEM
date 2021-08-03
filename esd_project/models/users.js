@@ -18,6 +18,21 @@ usersSchema
   return '/users/'+this._id;
 });
 
+userSchema
+.virtual('to_json')
+.get(function(){
+
+
+  var temp = {
+
+    name : this.firstName + " " + this.lastName,
+    email : this.email,
+  }
+
+  return temp;
+
+});
+
 usersSchema
 .virtual('name')
 .get(function(){
