@@ -1,6 +1,8 @@
 var User = require('../models/users');
 var async = require('async');
 var bcrypt = require("bcrypt");
+var jwt = require('jsonwebtoken');
+var config = require('../config');
 
 
 /* have to add JWT token */
@@ -36,11 +38,15 @@ async function createUser(req,res,next)
        user.save(function(err,reslt){
         if (err){
             console.log(err)
-            res.status(400).json({error : "Could not add user"});
+            res.status(400).json({auth : false,message : "Could not add user"});
         }
         else{
             console.log(reslt)
-            res.json({result : 'OK', email : user.email, name : user.name});
+
+            var user_token = jwt.sign({ id: user._id }, config.SECRET_KEY, {
+              expiresIn: config.EXPIRATION_TIME 
+            })
+            res.json({auth : true, token : user_token});
         }
       })
 
@@ -58,23 +64,26 @@ async function loginUser(req,res,next)
 
       if(validPassword)
       {
-         res.json({result:'Ok', email : user.email, name : user.name});
+        var user_token = jwt.sign({ id: user._id }, config.SECRET_KEY, {
+          expiresIn: config.EXPIRATION_TIME // expires in 24 hours
+        })
+        res.json({auth : true, token : user_token});
       }
       else
       {
-        res.status(400).json({error : 'Invalid Credentials'});
+        res.status(400).json({ auth: false, message : 'Invalid Credentials'});
       }
     }
     else
     {
-       res.status(400).json({error :'User does not exist'});
+       res.status(400).json({ auth : false,message :'User does not exist'});
     }
 };
 
 
 exports.GET_LOGIN_USER = function(req,res,next){
 
-    res.send("Login page");
+  res.send("Login Page");
 
 }
 exports.GET_REGISTER_USER = function(req,res,next)

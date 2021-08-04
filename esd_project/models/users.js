@@ -18,7 +18,7 @@ usersSchema
   return '/users/'+this._id;
 });
 
-userSchema
+usersSchema
 .virtual('to_json')
 .get(function(){
 
